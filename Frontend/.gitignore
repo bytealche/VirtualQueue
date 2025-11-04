@@ -2,8 +2,8 @@
 node_modules/
 
 # Build output
-dist/
-build/
+# dist/
+# build/
 
 # VS Code settings
 .vscode/
@@ -17,5 +17,5 @@ Thumbs.db
 *.log
 
 # Cache
-.cache/
-.next/
+# .cache/
+# .next/
