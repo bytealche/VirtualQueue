@@ -1,0 +1,10 @@
+# debug code for cors
+
+@app.route('/debug-cors')
+def debug_cors():
+    cors_env_var = os.getenv('CORS_ALLOWED_ORIGINS', 'VARIABLE_NOT_FOUND')
+    return jsonify({
+        "message": "This is the value the server sees for CORS_ALLOWED_ORIGINS",
+        "raw_value": cors_env_var,
+        "parsed_list": cors_env_var.split(',')
+    })

@@ -1,0 +1,10 @@
+# .gitignore file
+
+# Ignore the file containing secrets
+.env
+
+# Ignore the SQLite database file
+app.db
+
+# Ignore Python cache files
+__pycache__/
