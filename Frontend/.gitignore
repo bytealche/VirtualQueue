@@ -17,5 +17,5 @@ Thumbs.db
 *.log
 
 # Cache
-.cache/
-.next/
+# .cache/
+# .next/
