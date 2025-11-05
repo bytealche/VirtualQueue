@@ -1,10 +1,3 @@
-Of course. This is an excellent final step. Providing clear documentation is crucial for any API.
-
-Here is a complete guide on how to integrate your live API into a React (Vite) application. This document is written for a frontend developer and explains everything they need to know, from authentication to calling each endpoint.
-
-You can save this as a `README.md` file in your frontend's GitHub repository.
-
------
 
 # API Documentation & React Integration Guide
 
