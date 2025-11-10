@@ -1,0 +1,351 @@
+/* Import Bricolage Grotesque - Only Extralight & Light Weights */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@200;300&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* QueMe Custom Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 300; /* Light weight */
+    background-color: #000000;
+    color: #EEEEEE;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* PROMINENT NOISE TEXTURE OVERLAY - More Visible */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.15;
+    z-index: 1;
+    pointer-events: none;
+    background-image: url("/Swatch.png");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+}
+
+/* Ensure content stays above noise */
+body > * {
+    position: relative;
+    z-index: 2;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar - Dark Theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0F0F0F;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #24FB94 0%, #13C0BD 100%);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #13C0BD 0%, #24FB94 100%);
+}
+
+/* PERFECT Glassmorphism - EXACT FIGMA VALUES */
+.glass-card {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0.04) 100%
+    );
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Gradient Button - LESS ROUNDED - VERY MINIMAL GLOW */
+.btn-gradient {
+    background: linear-gradient(135deg, #24FB94 0%, #13C0BD 100%);
+    color: #000000;
+    font-weight: 300;
+    padding: 14px 36px;
+    border-radius: 8px; /* Changed from 50px to 8px */
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(36, 251, 148, 0.08);
+}
+
+.btn-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #13C0BD 0%, #24FB94 100%);
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.btn-gradient:hover::before {
+    left: 0;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(36, 251, 148, 0.12);
+}
+
+/* WHITE SOLID BUTTON - LESS ROUNDED */
+.btn-outline-white {
+    background: #FFFFFF;
+    color: #000000;
+    font-weight: 300;
+    padding: 14px 36px;
+    border-radius: 8px; /* Changed from 50px to 8px */
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+.btn-outline-white:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* Outline Button - LESS ROUNDED */
+.btn-outline {
+    background: transparent;
+    color: #EEEEEE;
+    font-weight: 300;
+    padding: 14px 36px;
+    border-radius: 8px; /* Changed from 50px to 8px */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #24FB94;
+    transform: translateY(-2px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.slide-in {
+    animation: slideIn 0.4s ease-out;
+}
+
+/* VERY MINIMAL Glow Effect */
+.glow {
+    box-shadow: 0 0 8px rgba(36, 251, 148, 0.08),
+                0 0 16px rgba(19, 192, 189, 0.05);
+}
+
+.glow-hover {
+    transition: all 0.3s ease;
+}
+
+.glow-hover:hover {
+    box-shadow: 0 0 12px rgba(36, 251, 148, 0.1),
+                0 0 24px rgba(19, 192, 189, 0.08);
+}
+
+/* Toast Notification - Dark Theme */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 500px;
+    padding: 16px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    animation: slideIn 0.3s ease-out;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.toast-success {
+    background: linear-gradient(135deg, rgba(36, 251, 148, 0.2) 0%, rgba(19, 192, 189, 0.2) 100%);
+    border: 1px solid rgba(36, 251, 148, 0.3);
+    color: #24FB94;
+}
+
+.toast-error {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.toast-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.2) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
+}
+
+.toast-info {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.2) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #3b82f6;
+}
+
+/* Form Input Styles */
+input, select, textarea {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #EEEEEE;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 300;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #24FB94;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(36, 251, 148, 0.1);
+}
+
+input::placeholder, textarea::placeholder {
+    color: rgba(238, 238, 238, 0.4);
+}
+
+/* Loading Spinner */
+.spinner {
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid #24FB94;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+.spinner-small {
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top: 2px solid #24FB94;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Badge Styles */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 300;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, rgba(36, 251, 148, 0.2) 0%, rgba(19, 192, 189, 0.2) 100%);
+    color: #24FB94;
+    border: 1px solid rgba(36, 251, 148, 0.3);
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.2) 100%);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-danger {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-info {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.2) 100%);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Typography - Only Light and Extralight */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 200; /* Extralight */
+}
+
+p, span, a, button, input, textarea, select {
+    font-weight: 300; /* Light */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .toast {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+    }
+}
