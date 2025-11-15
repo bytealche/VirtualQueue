@@ -88,7 +88,7 @@ const LoginPage = () => {
         <div className="glass-card p-8 glow-hover">
           <div className="flex justify-center mb-8">
             <Link to="/" className="hover:opacity-80 transition-opacity">
-              <img src="/logo.svg" alt="QueMe Logo" className="h-10 w-auto" />
+              <img src={`${import.meta.env.BASE_URL}/logo.svg`} alt="QueMe Logo" className="h-10 w-auto" />
             </Link>
           </div>
 
@@ -217,7 +217,7 @@ const LoginPage = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes slideIn {
           from {
             transform: translateX(100%);

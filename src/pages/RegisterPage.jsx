@@ -102,7 +102,7 @@ const RegisterPage = () => {
         <div className="glass-card p-8 glow-hover">
           <div className="flex justify-center mb-8">
             <Link to="/">
-              <img src="/logo.svg" alt="QueMe" className="h-10 w-auto" />
+              <img src={`${import.meta.env.BASE_URL}/logo.svg`} alt="QueMe" className="h-10 w-auto" />
             </Link>
           </div>
 
