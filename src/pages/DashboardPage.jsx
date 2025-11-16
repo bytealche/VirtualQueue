@@ -7,6 +7,9 @@ import { bookingsAPI } from "../services/bookings";
 import { queueAPI } from "../services/queue";
 
 const DashboardPage = () => {
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+
   const navigate = useNavigate();
   const { user, logout, loading } = useApp(); // <-- loading from AppContext
 
@@ -711,13 +714,16 @@ const DashboardPage = () => {
                           Cancel
                         </button>
                       )}
-                      
-                      <Link
-                        to={`/booking/${booking.id}`}
+
+                      <button
                         className="btn-gradient py-2 px-4 text-sm"
+                        onClick={() => {
+                          setSelectedBooking(booking);
+                          setViewModalOpen(true);
+                        }}
                       >
                         View
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -726,6 +732,68 @@ const DashboardPage = () => {
           )}
         </div>
       </div>
+      {viewModalOpen && selectedBooking && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="glass-card p-6 rounded-2xl w-full max-w-md relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setViewModalOpen(false)}
+              className="absolute top-3 right-3 text-white hover:text-accent-green"
+            >
+              ✕
+            </button>
+
+            {/* Header */}
+            <h2
+              className="text-2xl mb-4 text-center"
+              style={{ fontWeight: 200 }}
+            >
+              Booking Details
+            </h2>
+
+            {/* QR Code */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="bg-white p-4 rounded-lg">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${selectedBooking.token}`}
+                  alt="QR Code"
+                  className="w-40 h-40"
+                />
+              </div>
+              <p className="font-mono text-lg text-accent-green mt-2">
+                {selectedBooking.token}
+              </p>
+            </div>
+
+            {/* Provider + Service */}
+            <div className="mb-4 text-center">
+              <p className="text-xl">{selectedBooking.providerName}</p>
+              <p className="text-text-secondary text-sm">
+                {selectedBooking.serviceName ?? selectedBooking.serviceType}
+              </p>
+            </div>
+
+            {/* Date & Time */}
+            <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+              <div>
+                <p className="text-text-secondary mb-1">Date</p>
+                <p>{selectedBooking.date ?? "—"}</p>
+              </div>
+              <div>
+                <p className="text-text-secondary mb-1">Time</p>
+                <p>{selectedBooking.time ?? "—"}</p>
+              </div>
+            </div>
+
+            {/* Status */}
+            <div className="text-center">
+              <span className="px-4 py-2 rounded-lg bg-accent-green text-primary text-sm">
+                {String(selectedBooking.status).toUpperCase()}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

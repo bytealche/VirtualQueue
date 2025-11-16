@@ -5,6 +5,7 @@ import { useApp } from "../context/AppContext";
 import { providerAPI } from "../services/provider";
 import { queueAPI } from "../services/queue";
 import { bookingsAPI } from "../services/bookings";
+import QRCode from "qrcode";
 
 const QueueBookingPage = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const QueueBookingPage = () => {
 
   const [showTokenModal, setShowTokenModal] = useState(false);
   const [generatedToken, setGeneratedToken] = useState(null);
-const [loadingState, setLoadingState] = useState(false);
+  const [loadingState, setLoadingState] = useState(false);
 
   // Redirect if user not logged in
   // FIXED: Wait until AppContext is done restoring session
@@ -140,10 +141,11 @@ const [loadingState, setLoadingState] = useState(false);
 
       // POST /bookings
       const response = await bookingsAPI.create(payload);
-
+      const qrImage = await QRCode.toDataURL(response.booking.token);
       setGeneratedToken({
         token: response.booking.token,
-        qrCode: response.booking.qrCode || response.booking.token,
+        // qrCode: response.booking.qrCode || response.booking.token,
+        qrCode: qrImage,
         position: response.booking.position,
         provider: selectedProvider.business_name,
       });
@@ -235,14 +237,11 @@ const [loadingState, setLoadingState] = useState(false);
                 </p>
 
                 <div className="bg-white p-4 rounded-lg mb-4 inline-block">
-                  <div className="w-48 h-48 bg-gray-200 flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="text-xs text-gray-600 mb-2">QR CODE</p>
-                      <p className="text-[8px] text-gray-500 break-all px-2">
-                        {generatedToken.qrCode}
-                      </p>
-                    </div>
-                  </div>
+                  <img
+                        src={generatedToken.qrCode}
+                        alt="QR Code"
+                        className="w-48 h-48 object-contain"
+                      />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -381,9 +380,15 @@ const [loadingState, setLoadingState] = useState(false);
                 className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-accent-green"
                 style={{ fontWeight: 300 }}
               >
-                <option value="" className="text-black">Choose a provider</option>
+                <option value="" className="text-black">
+                  Choose a provider
+                </option>
                 {providers.map((provider) => (
-                  <option key={provider.id} value={provider.id} className="text-black">
+                  <option
+                    key={provider.id}
+                    value={provider.id}
+                    className="text-black"
+                  >
                     {provider.business_name} - {provider.business_type}
                   </option>
                 ))}
@@ -462,7 +467,9 @@ const [loadingState, setLoadingState] = useState(false);
                 disabled={!selectedProvider}
                 className="w-full px-4 py-3 rounded-lg"
               >
-                <option value="" className="text-black">Select service</option>
+                <option value="" className="text-black">
+                  Select service
+                </option>
 
                 {providerServices.map((srv) => (
                   <option key={srv.id} value={srv.id} className="text-black">
