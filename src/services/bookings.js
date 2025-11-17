@@ -7,4 +7,6 @@ export const bookingsAPI = {
 
     cancel: (bookingId) =>
         apiRequest(`/bookings/${bookingId}/cancel`, "POST", null, true),
+
+    get: (bookingId) => apiRequest(`/bookings/${bookingId}`, "GET", null, true),
 };

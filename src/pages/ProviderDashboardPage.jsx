@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
+import QRCode from "qrcode";
 
 const ProviderDashboard = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const ProviderDashboard = () => {
   });
   const [pageLoading, setPageLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [generatedQR, setGeneratedQR] = useState("");
 
   // 🔐 Auth guard
   useEffect(() => {
@@ -251,6 +253,29 @@ const ProviderDashboard = () => {
     fetchQueue(selectedServiceId);
   };
 
+  const generateQR = async () => {
+    if (!providerId) {
+      showToast("Provider ID missing", "error");
+      return;
+    }
+
+    try {
+      const qrUrl = await QRCode.toDataURL(
+        `https://queme.pythonanywhere.com/join-queue/${providerId}`,
+        {
+          width: 300,
+          margin: 1,
+        }
+      );
+
+      setGeneratedQR(qrUrl);
+      showToast("QR Generated", "success");
+    } catch (error) {
+      showToast("Failed to generate QR", "error");
+      console.error("QR error:", error);
+    }
+  };
+
   const showToast = (message, type = "info") => {
     setToast({ show: true, message, type });
     setTimeout(() => setToast({ show: false, message: "", type: "" }), 3000);
@@ -410,23 +435,37 @@ const ProviderDashboard = () => {
                 </h2>
 
                 {/* QR Download */}
-                <div className="w-full mt-4">
+                <div className="w-full flex flex-col items-center">
+                  {/* Generate QR Button */}
                   <button
-                    className="btn-gradient w-full"
-                    onClick={() => {
-                      if (!profile)
-                        return showToast("Profile not available", "error");
-
-                      if (profile.qrUrl) window.open(profile.qrUrl, "_blank");
-                      else
-                        showToast(
-                          "QR not generated for this provider",
-                          "error"
-                        );
-                    }}
+                    className="btn-gradient w-full mb-4"
+                    onClick={generateQR}
                   >
-                    Download QR
+                    Generate QR
                   </button>
+
+                  {/* Display QR if generated */}
+                  {generatedQR && (
+                    <>
+                      <img
+                        src={generatedQR}
+                        alt="Provider QR"
+                        className="w-48 h-48 rounded-lg shadow-md"
+                      />
+
+                      <button
+                        className="btn-outline w-full mt-4"
+                        onClick={() => {
+                          const a = document.createElement("a");
+                          a.href = generatedQR;
+                          a.download = "provider-qr.png";
+                          a.click();
+                        }}
+                      >
+                        Download QR
+                      </button>
+                    </>
+                  )}
                 </div>
               </>
             )}
