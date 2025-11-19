@@ -299,34 +299,46 @@ const HomePage = () => {
             </button>
           </div>
           {menuOpen && (
-            <div className="md:hidden px-4 pb-4 space-y-4 bg-primary/70 backdrop-blur-xl glass-card">
+            <div
+              className={`fixed top-20 right-0 h-screen glass-card
+                          transform transition-transform duration-300 ease-in-out md:hidden 
+                          ${ menuOpen ? "translate-x-0" : "translate-x-full"}`
+                        }>
+              {/* Close Button */}
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="absolute top-5 right-5 text-white"
+              ></button>
+
               <a
                 href="#features"
                 onClick={(e) => {
                   setMenuOpen(false);
                   handleAnchorClick(e, "features");
                 }}
-                className="block text-text-secondary hover:text-white font-light"
+                className="btn-outline-white m-2 block mt-10 text-text-primary hover:text-black font-light text-center"
               >
                 FEATURES
               </a>
+
               <a
                 href="#how-it-works"
                 onClick={(e) => {
                   setMenuOpen(false);
                   handleAnchorClick(e, "how-it-works");
                 }}
-                className="block text-text-secondary hover:text-white font-light"
+                className="btn-outline-white m-2 block mt-10 text-text-primary hover:text-black font-light text-center"
               >
                 HOW IT WORKS
               </a>
+
               <a
                 href="#services"
                 onClick={(e) => {
                   setMenuOpen(false);
                   handleAnchorClick(e, "services");
                 }}
-                className="block text-text-secondary hover:text-white font-light"
+                className="btn-outline-white m-2 block mt-10 text-text-primary hover:text-black font-light text-center"
               >
                 SERVICES
               </a>
@@ -334,7 +346,7 @@ const HomePage = () => {
               <Link
                 to="/login"
                 onClick={() => setMenuOpen(false)}
-                className="btn-outline-white block text-center"
+                className="btn-outline-white m-2  mt-10 block text-center"
               >
                 LOGIN
               </Link>
@@ -342,7 +354,7 @@ const HomePage = () => {
               <Link
                 to="/register"
                 onClick={() => setMenuOpen(false)}
-                className="btn-gradient block text-center"
+                className="btn-gradient mt-10 m-2 block text-center"
               >
                 START FOR FREE
               </Link>
@@ -376,10 +388,16 @@ const HomePage = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link to="/register?type=customer" className="btn-outline-white text-center">
+                <Link
+                  to="/register?type=customer"
+                  className="btn-outline-white text-center"
+                >
                   Join as Customer
                 </Link>
-                <Link to="/register?type=provider" className="btn-gradient text-center">
+                <Link
+                  to="/register?type=provider"
+                  className="btn-gradient text-center"
+                >
                   Register as Provider
                 </Link>
               </div>
