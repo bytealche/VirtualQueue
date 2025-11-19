@@ -8,9 +8,10 @@ export const providerAPI = {
     createService: (payload) =>
         apiRequest("/provider/services", "POST", payload, true),
 
+    // Public list of providers — no auth
     getProviders: () => apiRequest("/provider", "GET", null, false),
 
-    // ⭐ NEW: Public endpoint for fetching services of any provider
+    // Public provider services — no auth
     getProviderServices: (providerId) =>
         apiRequest(`/provider/${providerId}/services`, "GET", null, false),
 };

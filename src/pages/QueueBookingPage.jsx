@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 
 import { providerAPI } from "../services/provider";
@@ -9,15 +9,20 @@ import QRCode from "qrcode";
 
 const QueueBookingPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { user, loading } = useApp();
 
-  const [providers, setProviders] = useState([]);
+  const initialProviderId = location.state?.providerId || "";
+
   const [formData, setFormData] = useState({
-    providerId: "",
+    providerId: initialProviderId,
     serviceType: "",
-    notificationMethod: "app",
+    notificationMethod: "email",
     notes: "",
   });
+
+  const [providers, setProviders] = useState([]);
   const [providerServices, setProviderServices] = useState([]);
 
   const [selectedProvider, setSelectedProvider] = useState(null);
@@ -41,7 +46,18 @@ const QueueBookingPage = () => {
     const fetchProviders = async () => {
       try {
         const data = await providerAPI.getProviders();
-        setProviders(data || []);
+        // console.log("Providers API response:", data);
+
+        // Extract only numeric-keyed provider objects
+        const providerList = Object.values(data).filter(
+          (item) =>
+            item &&
+            typeof item === "object" &&
+            !Array.isArray(item) &&
+            !item.success
+        );
+
+        setProviders(providerList);
       } catch (err) {
         console.error(err);
         setToast({
@@ -49,10 +65,29 @@ const QueueBookingPage = () => {
           type: "error",
           message: "Failed to load providers",
         });
+        setProviders([]);
       }
     };
     fetchProviders();
   }, []);
+  useEffect(() => {
+    if (!location.state?.providerId || providers.length === 0) return;
+
+    const providerId = location.state.providerId;
+
+    // Auto-select provider in form
+    setFormData((prev) => ({ ...prev, providerId: String(providerId) }));
+
+    // Find provider object
+    const providerObj = providers.find((p) => p.id === providerId);
+
+    if (providerObj) {
+      setSelectedProvider(providerObj);
+
+      // Load its services automatically
+      fetchProviderServices(providerId);
+    }
+  }, [location.state, providers]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,7 +154,18 @@ const QueueBookingPage = () => {
   const fetchProviderServices = async (providerId) => {
     try {
       const data = await providerAPI.getProviderServices(providerId);
-      setProviderServices(data || []);
+
+      // console.log("Provider Services API:", data);
+
+      const serviceList = Object.values(data).filter(
+        (item) =>
+          item &&
+          typeof item === "object" &&
+          !Array.isArray(item) &&
+          !item.success
+      );
+
+      setProviderServices(serviceList);
     } catch (err) {
       console.error("Failed to load provider services", err);
       setProviderServices([]);
@@ -238,10 +284,10 @@ const QueueBookingPage = () => {
 
                 <div className="bg-white p-4 rounded-lg mb-4 inline-block">
                   <img
-                        src={generatedToken.qrCode}
-                        alt="QR Code"
-                        className="w-48 h-48 object-contain"
-                      />
+                    src={generatedToken.qrCode}
+                    alt="QR Code"
+                    className="w-48 h-48 object-contain"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -542,7 +588,7 @@ const QueueBookingPage = () => {
               </div>
             )}
             {/* Notification Method */}
-            <div>
+            {/* <div>
               <label className="block text-sm mb-3" style={{ fontWeight: 300 }}>
                 Notification Method *
               </label>
@@ -577,7 +623,7 @@ const QueueBookingPage = () => {
                   </label>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Additional Notes */}
             <div>

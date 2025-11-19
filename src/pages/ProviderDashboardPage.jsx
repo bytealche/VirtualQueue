@@ -261,8 +261,8 @@ const ProviderDashboard = () => {
 
     try {
       const qrUrl = await QRCode.toDataURL(
-      `https://bytealche.github.io/VirtualQueue/#/queue-booking/`,
-      {
+        `https://bytealche.github.io/VirtualQueue/#/queue-booking/`,
+        {
           width: 300,
           margin: 1,
         }
