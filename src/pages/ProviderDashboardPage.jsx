@@ -261,7 +261,7 @@ const ProviderDashboard = () => {
 
     try {
       const qrUrl = await QRCode.toDataURL(
-        `https://queme.pythonanywhere.com/join-queue/${providerId}`,
+        `https://bytealche.github.io/VirtualQueue/#/queue-booking/`,
         {
           width: 300,
           margin: 1,

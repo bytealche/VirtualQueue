@@ -16,6 +16,11 @@ import ManageServicesPage from "./pages/ManageServicesPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import FeedbackPage from "./pages/FeedbackPage";
 // import BookingDetailsPage from "./pages/BookingDetailsPage";
+import VerifyEmail from "./pages/VerifyEmail";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+
+
 function App() {
   useEffect(() => {
     if (window.feather) {
@@ -42,6 +47,10 @@ function App() {
           <Route path="/provider/analytics" element={<AnalyticsPage />} />
           <Route path="/provider/feedback" element={<FeedbackPage />} />
           <Route path="/services" element={<ServicesPage />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />       
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          
         </Routes>
       </Router>
     </AppProvider>

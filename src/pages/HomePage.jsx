@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 /** Robust scroll helper that accounts for fixed navbar height */
@@ -9,10 +9,11 @@ function scrollToSectionById(id) {
     const el = document.getElementById(id);
     if (!el) return false;
     // compute offset for fixed nav (adjust if your nav height differs)
-    const nav = document.querySelector('nav');
+    const nav = document.querySelector("nav");
     const navHeight = nav ? nav.getBoundingClientRect().height : 80; // fallback 80px
-    const top = el.getBoundingClientRect().top + window.pageYOffset - navHeight - 12; // extra spacing
-    window.scrollTo({ top, behavior: 'smooth' });
+    const top =
+      el.getBoundingClientRect().top + window.pageYOffset - navHeight - 12; // extra spacing
+    window.scrollTo({ top, behavior: "smooth" });
     return true;
   };
 
@@ -30,12 +31,15 @@ function scrollToSectionById(id) {
 function handleAnchorClick(e, id) {
   e.preventDefault();
   // if we're on another route (HashRouter), navigate to home first then scroll
-  const isHome = window.location.hash === '' || window.location.hash === '#/' || window.location.pathname === '/';
+  const isHome =
+    window.location.hash === "" ||
+    window.location.hash === "#/" ||
+    window.location.pathname === "/";
   if (isHome) {
     scrollToSectionById(id);
   } else {
     // Go to home route then scroll after small delay
-    window.location.hash = '/';
+    window.location.hash = "/";
     setTimeout(() => scrollToSectionById(id), 450); // wait for Home to render
   }
 }
@@ -44,6 +48,8 @@ const HomePage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const features = [
     {
@@ -215,21 +221,21 @@ const HomePage = () => {
             <div className="hidden md:flex items-center space-x-8">
               <a
                 href="#features"
-                onClick={(e) => handleAnchorClick(e, 'features')}
+                onClick={(e) => handleAnchorClick(e, "features")}
                 className="text-text-secondary hover:text-white transition-colors font-light nav-link"
               >
                 FEATURES
               </a>
               <a
                 href="#how-it-works"
-                onClick={(e) => handleAnchorClick(e, 'how-it-works')}
+                onClick={(e) => handleAnchorClick(e, "how-it-works")}
                 className="text-text-secondary hover:text-white transition-colors font-light nav-link"
               >
                 HOW IT WORKS
               </a>
               <a
                 href="#services"
-                onClick={(e) => handleAnchorClick(e, 'services')}
+                onClick={(e) => handleAnchorClick(e, "services")}
                 className="text-text-secondary hover:text-white transition-colors font-light nav-link"
               >
                 SERVICES
@@ -242,7 +248,7 @@ const HomePage = () => {
               </Link>
             </div>
 
-            <button className="md:hidden text-text-primary">
+            {/* <button className="md:hidden text-text-primary">
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -256,8 +262,92 @@ const HomePage = () => {
                   d="M4 6h16M4 12h16M4 18h16"
                 />
               </svg>
+            </button> */}
+            <button
+              className="md:hidden text-text-primary"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {!menuOpen ? (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              )}
             </button>
           </div>
+          {menuOpen && (
+            <div className="md:hidden px-4 pb-4 space-y-4 bg-primary/70 backdrop-blur-xl glass-card">
+              <a
+                href="#features"
+                onClick={(e) => {
+                  setMenuOpen(false);
+                  handleAnchorClick(e, "features");
+                }}
+                className="block text-text-secondary hover:text-white font-light"
+              >
+                FEATURES
+              </a>
+              <a
+                href="#how-it-works"
+                onClick={(e) => {
+                  setMenuOpen(false);
+                  handleAnchorClick(e, "how-it-works");
+                }}
+                className="block text-text-secondary hover:text-white font-light"
+              >
+                HOW IT WORKS
+              </a>
+              <a
+                href="#services"
+                onClick={(e) => {
+                  setMenuOpen(false);
+                  handleAnchorClick(e, "services");
+                }}
+                className="block text-text-secondary hover:text-white font-light"
+              >
+                SERVICES
+              </a>
+
+              <Link
+                to="/login"
+                onClick={() => setMenuOpen(false)}
+                className="btn-outline-white block text-center"
+              >
+                LOGIN
+              </Link>
+
+              <Link
+                to="/register"
+                onClick={() => setMenuOpen(false)}
+                className="btn-gradient block text-center"
+              >
+                START FOR FREE
+              </Link>
+            </div>
+          )}
         </div>
       </nav>
 
@@ -286,10 +376,10 @@ const HomePage = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link to="/register" className="btn-outline-white text-center">
+                <Link to="/register?type=customer" className="btn-outline-white text-center">
                   Join as Customer
                 </Link>
-                <Link to="/register" className="btn-gradient text-center">
+                <Link to="/register?type=provider" className="btn-gradient text-center">
                   Register as Provider
                 </Link>
               </div>
@@ -589,30 +679,30 @@ const HomePage = () => {
               <ul className="space-y-2 text-sm">
                 <li>
                   <a
-                  href="#features"
-                  onClick={(e) => handleAnchorClick(e, 'features')}
-                  className="text-text-secondary hover:text-white transition-colors font-light footer-link"
-                >
-                  FEATURES
-                </a>
+                    href="#features"
+                    onClick={(e) => handleAnchorClick(e, "features")}
+                    className="text-text-secondary hover:text-white transition-colors font-light footer-link"
+                  >
+                    FEATURES
+                  </a>
                 </li>
                 <li>
                   <a
-                  href="#how-it-works"
-                  onClick={(e) => handleAnchorClick(e, 'how-it-works')}
-                  className="text-text-secondary hover:text-white transition-colors font-light footer-link"
-                >
-                  HOW IT WORKS
-                </a>
+                    href="#how-it-works"
+                    onClick={(e) => handleAnchorClick(e, "how-it-works")}
+                    className="text-text-secondary hover:text-white transition-colors font-light footer-link"
+                  >
+                    HOW IT WORKS
+                  </a>
                 </li>
                 <li>
                   <a
-                  href="#services"
-                  onClick={(e) => handleAnchorClick(e, 'services')}
-                  className="text-text-secondary hover:text-white transition-colors font-light footer-link"
-                >
-                  SERVICES
-                </a>
+                    href="#services"
+                    onClick={(e) => handleAnchorClick(e, "services")}
+                    className="text-text-secondary hover:text-white transition-colors font-light footer-link"
+                  >
+                    SERVICES
+                  </a>
                 </li>
                 <li>
                   <Link

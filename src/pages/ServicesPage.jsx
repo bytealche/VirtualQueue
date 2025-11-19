@@ -10,7 +10,11 @@ export default function ServicesPage() {
     const loadProviders = async () => {
       try {
         const list = await providerAPI.getProviders();
-        setProviders(list || []);
+        const providerList = Object.values(list).filter(
+          (item) => item && typeof item === "object" && item.id
+        );
+
+        setProviders(providerList);
       } catch (err) {
         console.error("Failed loading providers", err);
       } finally {
@@ -32,7 +36,10 @@ export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-primary text-text-primary px-6 py-10">
       <h1 className="text-4xl mb-6" style={{ fontWeight: 200 }}>
-        Available <span className="bg-gradient-accent bg-clip-text text-transparent">Services</span>
+        Available{" "}
+        <span className="bg-gradient-accent bg-clip-text text-transparent">
+          Services
+        </span>
       </h1>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -48,6 +55,7 @@ export default function ServicesPage() {
 
             <Link
               to="/queue-booking"
+              state={{ providerId: p.id }}
               className="btn-gradient mt-4 inline-block"
             >
               Book Queue
