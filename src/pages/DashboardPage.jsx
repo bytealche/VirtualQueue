@@ -42,7 +42,21 @@ const DashboardPage = () => {
       try {
         // 1. Get bookings
         const bResp = await bookingsAPI.list();
-        const userBookings = Array.isArray(bResp) ? bResp : [];
+
+        let userBookings = [];
+
+        // Convert backend object-with-numeric-keys → array
+        if (Array.isArray(bResp)) {
+          userBookings = bResp;
+        } else if (typeof bResp === "object" && bResp !== null) {
+          userBookings = Object.values(bResp).filter(
+            (item) =>
+              item &&
+              typeof item === "object" &&
+              !Array.isArray(item) &&
+              !item.success
+          );
+        }
 
         // 2. Get upcoming (active queue position)
         const active =

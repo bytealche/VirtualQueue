@@ -6,17 +6,11 @@ const AppContext = createContext();
 export const useApp = () => useContext(AppContext);
 
 export const AppProvider = ({ children }) => {
-  // user = undefined → loading
-  // user = null → not logged in
-  // user = object → logged in
-  const [user, setUser] = useState(undefined);
+  const [user, setUser] = useState(undefined); // undefined = checking session
   const [loading, setLoading] = useState(true);
 
   const [providers, setProviders] = useState([]);
 
-  // ============================================================
-  // INIT — Restore session + preload provider list
-  // ============================================================
   useEffect(() => {
     restoreAuth();
     loadProviders();
@@ -31,39 +25,43 @@ export const AppProvider = ({ children }) => {
     const token = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
 
-    // No saved session → user is logged out
+    // No saved session
     if (!token || !savedUser) {
       setUser(null);
       setLoading(false);
       return;
     }
 
-    const parsedUser = JSON.parse(savedUser);
+    let parsedUser;
+    try {
+      parsedUser = JSON.parse(savedUser);
+    } catch (err) {
+      console.warn("Invalid user JSON, clearing session.");
+      logout();
+      setLoading(false);
+      return;
+    }
 
     try {
-      // If provider → verify token by requesting profile
+      // Provider — refresh profile
       if (parsedUser.user_type === "provider") {
-        const profile = await providerAPI.profile(); // MUST return valid JWT info
+        const profile = await providerAPI.profile();
         setUser(profile);
-
-        // Save providerId for dashboard (optional but useful)
         localStorage.setItem("providerId", profile.id);
-      }
-
-      // Customer (temporarily use stored data until you add /customer/profile)
-      else {
+      } else {
+        // Customer — keep stored session (until you add /customer/profile)
         setUser(parsedUser);
       }
     } catch (err) {
       console.error("Session restore failed:", err);
-      logout(); // auto-logout on token failure
+      logout();
     }
 
     setLoading(false);
   };
 
   // ============================================================
-  // LOAD PROVIDERS LIST (Public)
+  // LOAD PROVIDERS LIST
   // ============================================================
   const loadProviders = async () => {
     try {
@@ -77,34 +75,37 @@ export const AppProvider = ({ children }) => {
   // ============================================================
   // LOGIN
   // ============================================================
-  const login = async (email, password) => {
-    try {
-      const response = await authAPI.login({ email, password });
+ const login = async (email, password) => {
+  try {
+    const response = await authAPI.login({ email, password });
 
-      if (!response.success) {
-        return { success: false, message: response.message };
-      }
-
-      const userData = response.user;
-
-      // Save session
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      if (userData.user_type === "provider") {
-        localStorage.setItem("providerId", userData.id);
-      }
-
-      setUser(userData);
-
-      return { success: true };
-    } catch {
-      return { success: false, message: "Server error" };
+    if (!response.success) {
+      return { success: false, message: response.message };
     }
-  };
+
+    const userData = response.user;
+
+    // Save session
+    localStorage.setItem("token", response.token);
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    if (userData.user_type === "provider") {
+      localStorage.setItem("providerId", userData.id);
+    }
+
+    setUser(userData);
+
+    // 🔥 MUST return userData to LoginPage
+    return { success: true, user: userData };
+
+  } catch {
+    return { success: false, message: "Server error" };
+  }
+};
+
 
   // ============================================================
-  // REGISTER
+  // REGISTER (updated for email verification)
   // ============================================================
   const register = async (form) => {
     try {
@@ -121,36 +122,25 @@ export const AppProvider = ({ children }) => {
 
       const response = await authAPI.register(payload);
 
-      if (response.success) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
+      // ❗ Email verification returns ONLY success + message
+      // NO USER, NO TOKEN — DO NOT STORE ANYTHING
 
-        if (response.user.user_type === "provider") {
-          localStorage.setItem("providerId", response.user.id);
-        }
-
-        setUser(response.user);
-      }
-
-      return response;
+      return response; 
     } catch {
       return { success: false, message: "Registration failed" };
     }
   };
 
   // ============================================================
-  // LOGOUT — MUST remove providerId also
+  // LOGOUT
   // ============================================================
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    localStorage.removeItem("providerId"); // 🔥 REQUIRED FIX
+    localStorage.removeItem("providerId");
     setUser(null);
   };
 
-  // ============================================================
-  // PROVIDE GLOBAL VALUES
-  // ============================================================
   return (
     <AppContext.Provider
       value={{
