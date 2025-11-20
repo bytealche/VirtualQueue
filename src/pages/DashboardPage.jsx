@@ -10,6 +10,8 @@ const DashboardPage = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const navigate = useNavigate();
   const { user, logout, loading } = useApp(); // <-- loading from AppContext
 
@@ -19,6 +21,31 @@ const DashboardPage = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const [bookings, setBookings] = useState([]);
   const [activeQueue, setActiveQueue] = useState(null);
+
+  const formatDateTime = (iso) => {
+    if (!iso) return { date: "—", time: "—" };
+
+    const utcDate = new Date(iso);
+
+    // Convert UTC → IST (UTC + 5:30)
+    const istDate = new Date(utcDate.getTime() + 5.5 * 60 * 60 * 1000);
+
+    const date = istDate.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      timeZone: "Asia/Kolkata",
+    });
+
+    const time = istDate.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+      timeZone: "Asia/Kolkata",
+    });
+
+    return { date, time };
+  };
 
   // Toast helper
   const showToast = (message, type = "info") => {
@@ -225,7 +252,7 @@ const DashboardPage = () => {
       {/* Header */}
       <nav className="glass-card sticky top-0 z-40 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
-          <Link to="/" className="hover:opacity-80">
+          <Link to="/dashboard" className="hover:opacity-80">
             <img
               className="h-11"
               src={`${import.meta.env.BASE_URL}/logo.svg`}
@@ -239,6 +266,12 @@ const DashboardPage = () => {
               style={{ fontWeight: 300 }}
             >
               Dashboard
+            </Link>
+            <Link
+              to="/services"
+              className="text-white transition-colors font-light nav-link"
+            >
+              Services
             </Link>
             <Link
               className="text-text-secondary hover:text-accent-green"
@@ -261,13 +294,104 @@ const DashboardPage = () => {
               </button>
             </div>
           </div>
+          <button
+            className="md:hidden text-text-primary"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {!menuOpen ? (
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            ) : (
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            )}
+          </button>
         </div>
+        {menuOpen && (
+          <div
+            className={`
+      fixed top-20 right-0 h-[calc(100vh-5rem)] w-64 
+      bg-[#0f0f0f]/95 backdrop-blur-xl z-50 
+      transform transition-transform duration-300 ease-in-out md:hidden
+      ${menuOpen ? "translate-x-0" : "translate-x-full"}
+    `}
+          >
+            {/* Layout Wrapper */}
+            <div className="flex flex-col h-full">
+              {/* Navigation Links */}
+              <nav className="flex-1 overflow-y-auto p-6 mt-10 space-y-4">
+                <Link
+                  to="/dashboard"
+                  onClick={() => setMenuOpen(false)}
+                  className="block py-3 px-4 rounded-lg hover:bg-white/5 transition-colors font-light"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/services"
+                  onClick={() => setMenuOpen(false)}
+                  className="block py-3 px-4 rounded-lg hover:bg-white/5 transition-colors font-light"
+                >
+                  Services
+                </Link>
+                <Link
+                  to="/queue-booking"
+                  onClick={() => setMenuOpen(false)}
+                  className="block py-3 px-4 rounded-lg hover:bg-white/5 transition-colors font-light"
+                >
+                  Book Queue
+                </Link>
+
+                {/* USER INFO */}
+                <div className="mt-6 p-4 rounded-lg bg-white/5">
+                  <p className="text-sm">{user.name}</p>
+                  <p className="text-xs text-text-secondary">{user.email}</p>
+                </div>
+              </nav>
+
+              {/* Footer */}
+              <div className="p-6 border-t border-white/10">
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="block w-full btn-outline-white py-3 text-center"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Main */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back */}
-        <Link
+        {/* <Link
           to="/"
           className="inline-flex items-center text-text-secondary hover:text-accent-green transition-colors mb-6"
           style={{ fontWeight: 300 }}
@@ -286,7 +410,7 @@ const DashboardPage = () => {
             ></path>
           </svg>
           Back to Home
-        </Link>
+        </Link> */}
 
         {/* Welcome + Active Queue */}
         <div className="mb-8">
@@ -671,7 +795,7 @@ const DashboardPage = () => {
                           >
                             {booking.providerName}
                           </h3>
-                          <p
+                          {/* <p
                             className="text-text-secondary text-sm"
                             style={{ fontWeight: 300 }}
                           >
@@ -679,7 +803,7 @@ const DashboardPage = () => {
                             <span className="font-mono text-accent-green">
                               #{booking.id}
                             </span>
-                          </p>
+                          </p> */}
                         </div>
                         <span
                           className={`px-3 py-1 rounded-lg text-xs ${getStatusColor(
@@ -704,6 +828,7 @@ const DashboardPage = () => {
                             {booking.serviceName ?? booking.serviceType ?? "—"}
                           </p>
                         </div>
+
                         <div>
                           <p
                             className="text-text-secondary mb-1"
@@ -711,10 +836,17 @@ const DashboardPage = () => {
                           >
                             Date & Time
                           </p>
-                          <p style={{ fontWeight: 300 }}>
-                            {booking.date ?? "—"}
-                            {booking.time ? ` at ${booking.time}` : ""}
-                          </p>
+
+                          {(() => {
+                            const { date, time } = formatDateTime(
+                              booking.joinedAt
+                            );
+                            return (
+                              <p style={{ fontWeight: 300 }}>
+                                {date} {time ? ` at ${time}` : ""}
+                              </p>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -747,65 +879,74 @@ const DashboardPage = () => {
         </div>
       </div>
       {viewModalOpen && selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="glass-card p-6 rounded-2xl w-full max-w-md relative">
-            {/* Close Button */}
-            <button
-              onClick={() => setViewModalOpen(false)}
-              className="absolute top-3 right-3 text-white hover:text-accent-green"
-            >
-              ✕
-            </button>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm 
+                  flex items-center justify-center z-50"
+        >
+          {/** ← ADD THIS HERE */}
+          {(() => {
+            const { date, time } = formatDateTime(selectedBooking.joinedAt);
+            return (
+              <div className="glass-card p-6 rounded-2xl w-full max-w-md relative">
+                {/* Close Button */}
+                <button
+                  onClick={() => setViewModalOpen(false)}
+                  className="absolute top-3 right-3 text-white hover:text-accent-green"
+                >
+                  ✕
+                </button>
 
-            {/* Header */}
-            <h2
-              className="text-2xl mb-4 text-center"
-              style={{ fontWeight: 200 }}
-            >
-              Booking Details
-            </h2>
+                {/* Header */}
+                <h2
+                  className="text-2xl mb-4 text-center"
+                  style={{ fontWeight: 200 }}
+                >
+                  Booking Details
+                </h2>
 
-            {/* QR Code */}
-            <div className="flex flex-col items-center mb-6">
-              <div className="bg-white p-4 rounded-lg">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${selectedBooking.token}`}
-                  alt="QR Code"
-                  className="w-40 h-40"
-                />
+                {/* QR Code */}
+                <div className="flex flex-col items-center mb-6">
+                  <div className="bg-white p-4 rounded-lg">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${selectedBooking.token}`}
+                      alt="QR Code"
+                      className="w-40 h-40"
+                    />
+                  </div>
+                  <p className="font-mono text-lg text-accent-green mt-2">
+                    {selectedBooking.token}
+                  </p>
+                </div>
+
+                {/* Provider + Service */}
+                <div className="mb-4 text-center">
+                  <p className="text-xl">{selectedBooking.providerName}</p>
+                  <p className="text-text-secondary text-sm">
+                    {selectedBooking.serviceName ?? selectedBooking.serviceType}
+                  </p>
+                </div>
+
+                {/* Date & Time */}
+                <div className="grid grid-cols-2 gap-4 mb-6 text-sm text-center">
+                  <div>
+                    <p className="text-text-secondary mb-1">Date</p>
+                    <p>{date}</p>
+                  </div>
+                  <div>
+                    <p className="text-text-secondary mb-1">Time</p>
+                    <p>{time}</p>
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div className="text-center">
+                  <span className="px-4 py-2 rounded-lg bg-accent-green text-primary text-sm">
+                    {String(selectedBooking.status).toUpperCase()}
+                  </span>
+                </div>
               </div>
-              <p className="font-mono text-lg text-accent-green mt-2">
-                {selectedBooking.token}
-              </p>
-            </div>
-
-            {/* Provider + Service */}
-            <div className="mb-4 text-center">
-              <p className="text-xl">{selectedBooking.providerName}</p>
-              <p className="text-text-secondary text-sm">
-                {selectedBooking.serviceName ?? selectedBooking.serviceType}
-              </p>
-            </div>
-
-            {/* Date & Time */}
-            <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-              <div>
-                <p className="text-text-secondary mb-1">Date</p>
-                <p>{selectedBooking.date ?? "—"}</p>
-              </div>
-              <div>
-                <p className="text-text-secondary mb-1">Time</p>
-                <p>{selectedBooking.time ?? "—"}</p>
-              </div>
-            </div>
-
-            {/* Status */}
-            <div className="text-center">
-              <span className="px-4 py-2 rounded-lg bg-accent-green text-primary text-sm">
-                {String(selectedBooking.status).toUpperCase()}
-              </span>
-            </div>
-          </div>
+            );
+          })()}
         </div>
       )}
     </div>

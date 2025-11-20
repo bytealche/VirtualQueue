@@ -248,21 +248,6 @@ const HomePage = () => {
               </Link>
             </div>
 
-            {/* <button className="md:hidden text-text-primary">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button> */}
             <button
               className="md:hidden text-text-primary"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -297,69 +282,87 @@ const HomePage = () => {
                 </svg>
               )}
             </button>
+            
           </div>
           {menuOpen && (
-            <div
-              className={`fixed top-20 right-0 h-screen glass-card
-                          transform transition-transform duration-300 ease-in-out md:hidden 
-                          ${ menuOpen ? "translate-x-0" : "translate-x-full"}`
-                        }>
-              {/* Close Button */}
-              <button
-                onClick={() => setMenuOpen(false)}
-                className="absolute top-5 right-5 text-white"
-              ></button>
+  <div
+    className={`
+      fixed top-20 right-0 h-[calc(100vh-5rem)] w-64 bg-[#0f0f0f]/95 backdrop-blur-xl
+ z-50
+      transform transition-transform duration-300 ease-in-out md:hidden
+      ${menuOpen ? "translate-x-0" : "translate-x-full"}
+    `}
+  >
+    {/* Layout Wrapper */}
+    <div className="flex flex-col h-full">
 
-              <a
-                href="#features"
-                onClick={(e) => {
-                  setMenuOpen(false);
-                  handleAnchorClick(e, "features");
-                }}
-                className="btn-outline-white m-2 block mt-10 text-text-primary hover:text-black font-light text-center"
-              >
-                FEATURES
-              </a>
+      {/* Navigation Links */}
+      <nav className="flex-1 overflow-y-auto p-6 mt-10">
+        <div className="space-y-4">
 
-              <a
-                href="#how-it-works"
-                onClick={(e) => {
-                  setMenuOpen(false);
-                  handleAnchorClick(e, "how-it-works");
-                }}
-                className="btn-outline-white m-2 block mt-10 text-text-primary hover:text-black font-light text-center"
-              >
-                HOW IT WORKS
-              </a>
+          <a
+            href="#features"
+            onClick={(e) => {
+              setMenuOpen(false);
+              handleAnchorClick(e, "features");
+            }}
+            className="block py-3 px-4 rounded-lg hover:bg-white/5 transition-colors font-light"
+          >
+            Features
+          </a>
 
-              <a
-                href="#services"
-                onClick={(e) => {
-                  setMenuOpen(false);
-                  handleAnchorClick(e, "services");
-                }}
-                className="btn-outline-white m-2 block mt-10 text-text-primary hover:text-black font-light text-center"
-              >
-                SERVICES
-              </a>
+          <a
+            href="#how-it-works"
+            onClick={(e) => {
+              setMenuOpen(false);
+              handleAnchorClick(e, "how-it-works");
+            }}
+            className="block py-3 px-4 rounded-lg hover:bg-white/5 transition-colors font-light"
+          >
+            How It Works
+          </a>
 
-              <Link
-                to="/login"
-                onClick={() => setMenuOpen(false)}
-                className="btn-outline-white m-2  mt-10 block text-center"
-              >
-                LOGIN
-              </Link>
+          <a
+            href="#services"
+            onClick={(e) => {
+              setMenuOpen(false);
+              handleAnchorClick(e, "services");
+            }}
+            className="block py-3 px-4 rounded-lg hover:bg-white/5 transition-colors font-light"
+          >
+            Services
+          </a>
 
-              <Link
-                to="/register"
-                onClick={() => setMenuOpen(false)}
-                className="btn-gradient mt-10 m-2 block text-center"
-              >
-                START FOR FREE
-              </Link>
-            </div>
-          )}
+        </div>
+      </nav>
+
+      {/* Footer at Bottom */}
+      <div className="p-6 border-t border-white/10">
+        <div className="space-y-2">
+
+          <Link
+            to="/login"
+            className="block w-full btn-outline-white py-3 text-center"
+            onClick={() => setMenuOpen(false)}
+          >
+            Login
+          </Link>
+
+          <Link
+            to="/register"
+            className="block w-full btn-gradient py-3 text-center"
+            onClick={() => setMenuOpen(false)}
+          >
+            Start For Free
+          </Link>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+)}
+
         </div>
       </nav>
 

@@ -276,7 +276,7 @@ const QueueBookingPage = () => {
                 </p>
 
                 <p
-                  className="font-mono text-4xl text-accent-green mb-4"
+                  className="font-mono text-2xl text-accent-green mb-4"
                   style={{ fontWeight: 200 }}
                 >
                   {generatedToken.token}
@@ -349,13 +349,7 @@ const QueueBookingPage = () => {
             </Link>
 
             <div className="flex items-center space-x-4">
-              <Link
-                to="/dashboard"
-                className="text-text-secondary hover:text-accent-green"
-                style={{ fontWeight: 300 }}
-              >
-                Dashboard
-              </Link>
+              
 
               <button
                 onClick={() => navigate("/dashboard")}
