@@ -1,4 +1,5 @@
-# QueMe Frontend
+# <a href ="https://bytealche.github.io/VirtualQueue/" target ="_blank"><img src="public/logo.png" width= "190"><img><a> 
+# Frontend
 
 Modern queue management system frontend built with React, Vite, and Tailwind CSS.
 
