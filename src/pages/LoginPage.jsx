@@ -1,20 +1,37 @@
-import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const { login } = useApp();
+  const [searchParams] = useSearchParams();
 
+  // Get role from URL
+  const typeFromUrl = searchParams.get("type");
+
+  // Maintain selected role
+  const [userType, setUserType] = useState(typeFromUrl || "customer");
+
+  // Sync with URL if changed
+  useEffect(() => {
+    if (typeFromUrl && typeFromUrl !== userType) {
+      setUserType(typeFromUrl);
+    }
+  }, [typeFromUrl]);
+
+  // Form state
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    userType: "customer", // Add user type
     rememberMe: false,
   });
 
+  // Password visibility
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Toast + Loader
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
   const [loading, setLoading] = useState(false);
 
@@ -30,11 +47,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
-      setToast({
-        show: true,
-        message: "Please fill in all fields",
-        type: "error",
-      });
+      setToast({ show: true, message: "Please fill in all fields", type: "error" });
       return;
     }
 
@@ -43,17 +56,12 @@ const LoginPage = () => {
     try {
       const result = await login(formData.email, formData.password);
 
-      // defensive: ensure result exists and has expected shape
+      // Guard: backend must return result object
       if (!result || typeof result !== "object") {
-        setToast({
-          show: true,
-          message: "Unexpected server response",
-          type: "error",
-        });
+        setToast({ show: true, message: "Unexpected server response", type: "error" });
         return;
       }
 
-      // if backend returned success === false
       if (!result.success) {
         setToast({
           show: true,
@@ -63,7 +71,7 @@ const LoginPage = () => {
         return;
       }
 
-      // defensive: ensure result.user exists
+      // Guard: user must be returned
       if (!result.user || typeof result.user !== "object") {
         setToast({
           show: true,
@@ -73,11 +81,9 @@ const LoginPage = () => {
         return;
       }
 
-      // backend uses snake_case: user_type
-      const backendRole = result.user.user_type;
-      const selectedRole = formData.userType;
+      // Extract user role from backend
+      const backendRole = result.user.user_type; // snake_case confirmed
 
-      // missing role from backend
       if (!backendRole) {
         setToast({
           show: true,
@@ -87,20 +93,20 @@ const LoginPage = () => {
         return;
       }
 
-      // block mismatched role selection
-      if (backendRole !== selectedRole) {
+      // Prevent wrong login type (customer trying provider and vice versa)
+      if (backendRole !== userType) {
         setToast({
           show: true,
-          message: `User not found`,
+          message: "User not found",
           type: "error",
         });
         return;
       }
 
-      // success: persist in context (your login probably already does), show toast, redirect
+      // Success
       setToast({ show: true, message: "Login successful!", type: "success" });
 
-      // short delay for UX
+      // Redirect
       setTimeout(() => {
         if (backendRole === "provider") {
           navigate("/provider-dashboard");
@@ -122,50 +128,27 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-primary flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Background Glow */}
       <div className="absolute inset-0 pointer-events-none opacity-30">
         <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-accent rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-accent-reverse rounded-full blur-3xl"></div>
       </div>
 
+      {/* Toast */}
       {toast.show && (
-        <div
-          className={`fixed top-5 right-5 z-50 toast toast-${toast.type} animate-slideIn`}
-        >
+        <div className={`fixed top-5 right-5 z-50 toast toast-${toast.type} animate-slideIn`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               {toast.type === "success" && (
-                <svg
-                  className="w-6 h-6 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
+                <svg className="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               )}
               <p className="font-light">{toast.message}</p>
             </div>
-            <button
-              onClick={() => setToast({ show: false, message: "", type: "" })}
-              className="ml-4 hover:opacity-70 transition-opacity"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
+            <button onClick={() => setToast({ show: false, message: "", type: "" })}>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
@@ -174,6 +157,7 @@ const LoginPage = () => {
 
       <div className="w-full max-w-md relative z-10">
         <div className="glass-card p-8 glow-hover">
+          {/* Logo */}
           <div className="flex justify-center mb-8">
             <Link to="/" className="hover:opacity-80 transition-opacity">
               <img
@@ -184,29 +168,25 @@ const LoginPage = () => {
             </Link>
           </div>
 
-          <h2 className="text-3xl font-extralight text-center mb-2">
-            Welcome Back
-          </h2>
-          <p className="text-text-secondary text-center mb-8 font-light">
-            Login to continue to your account
-          </p>
+          <h2 className="text-3xl font-extralight text-center mb-2">Welcome Back</h2>
+          <p className="text-text-secondary text-center mb-8 font-light">Login to continue to your account</p>
 
           {/* User Type Toggle */}
           <div className="flex glass-card p-1 mb-6">
             <button
               type="button"
               onClick={() => {
-                setFormData((prev) => ({ ...prev, userType: "customer" }));
+                setUserType("customer");
                 navigate(`${location.pathname}?type=customer`);
               }}
               className={`flex-1 py-3 px-6 rounded-lg transition-all ${
-                formData.userType === "customer"
+                userType === "customer"
                   ? "text-primary"
                   : "text-text-secondary hover:text-text-primary"
               }`}
               style={{
                 background:
-                  formData.userType === "customer"
+                  userType === "customer"
                     ? "linear-gradient(135deg, #24FB94 0%, #13C0BD 100%)"
                     : "transparent",
                 fontWeight: 300,
@@ -218,17 +198,17 @@ const LoginPage = () => {
             <button
               type="button"
               onClick={() => {
-                setFormData((prev) => ({ ...prev, userType: "provider" }));
+                setUserType("provider");
                 navigate(`${location.pathname}?type=provider`);
               }}
               className={`flex-1 py-3 px-6 rounded-lg transition-all ${
-                formData.userType === "provider"
+                userType === "provider"
                   ? "text-primary"
                   : "text-text-secondary hover:text-text-primary"
               }`}
               style={{
                 background:
-                  formData.userType === "provider"
+                  userType === "provider"
                     ? "linear-gradient(135deg, #24FB94 0%, #13C0BD 100%)"
                     : "transparent",
                 fontWeight: 300,
@@ -238,7 +218,9 @@ const LoginPage = () => {
             </button>
           </div>
 
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-light mb-2">
                 Email Address
@@ -250,30 +232,48 @@ const LoginPage = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-accent-green font-light"
-                placeholder="your@email.com"
+                placeholder="email@example.com"
                 required
               />
             </div>
 
+            {/* Password + Toggle */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-light mb-2"
-              >
+              <label htmlFor="password" className="block text-sm font-light mb-2">
                 Password
               </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-lg focus:ring-2 focus:ring-accent-green font-light"
-                placeholder="••••••••"
-                required
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 pr-12 rounded-lg focus:ring-2 focus:ring-accent-green font-light"
+                  placeholder="••••••••"
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                >
+                  {showPassword ? (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
 
+            {/* Remember Me */}
             <div className="flex items-center justify-between">
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
@@ -281,24 +281,23 @@ const LoginPage = () => {
                   name="rememberMe"
                   checked={formData.rememberMe}
                   onChange={handleChange}
-                  className="w-4 h-4 rounded border-gray-600 text-accent-green focus:ring-accent-green focus:ring-2"
+                  className="w-4 h-4 rounded border-gray-600 text-accent-green focus:ring-accent-green"
                 />
                 <span className="text-sm text-text-secondary font-light">
                   Remember me
                 </span>
               </label>
-              <Link
-                to="/forgot-password"
-                className="text-sm text-accent-green hover:text-accent-cyan transition-colors font-light"
-              >
+
+              <Link to="/forgot-password" className="text-sm text-accent-green hover:text-accent-cyan">
                 Forgot password?
               </Link>
             </div>
 
+            {/* Login Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-gradient py-3 text-lg font-light disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full btn-gradient py-3 text-lg font-light disabled:opacity-50"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -311,6 +310,7 @@ const LoginPage = () => {
             </button>
           </form>
 
+          {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-800"></div>
@@ -322,18 +322,17 @@ const LoginPage = () => {
             </div>
           </div>
 
+          {/* Register Redirect */}
           <Link
-            to="/register"
+            to={`/register?type=${userType}`}
             className="block w-full btn-outline py-3 text-center text-lg font-light"
           >
             Create Account
           </Link>
 
+          {/* Back to Home */}
           <div className="text-center mt-6">
-            <Link
-              to="/"
-              className="text-sm text-text-secondary hover:text-accent-green transition-colors font-light"
-            >
+            <Link to="/" className="text-sm text-text-secondary hover:text-accent-green">
               ← Back to Home
             </Link>
           </div>
@@ -342,16 +341,9 @@ const LoginPage = () => {
 
       <style>{`
         @keyframes slideIn {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
         }
-
         .animate-slideIn {
           animation: slideIn 0.3s ease-out;
         }

@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { bookingsAPI } from "../services/bookings";
 import { queueAPI } from "../services/queue";
+import FeedbackModal from "../components/FeedbackModal";
 
 const DashboardPage = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -21,6 +22,10 @@ const DashboardPage = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const [bookings, setBookings] = useState([]);
   const [activeQueue, setActiveQueue] = useState(null);
+
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedBookingForFeedback, setSelectedBookingForFeedback] =
+    useState(null);
 
   const formatDateTime = (iso) => {
     if (!iso) return { date: "—", time: "—" };
@@ -154,6 +159,33 @@ const DashboardPage = () => {
     upcoming: bookings.filter((b) => b.status === "upcoming").length,
     completed: bookings.filter((b) => b.status === "completed").length,
     cancelled: bookings.filter((b) => b.status === "cancelled").length,
+  };
+
+  const handleOpenFeedback = (booking) => {
+    setSelectedBookingForFeedback(booking);
+    setShowFeedbackModal(true);
+  };
+
+  const handleSubmitFeedback = async (feedbackData) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/bookings/${
+          selectedBookingForFeedback.id
+        }/feedback`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(feedbackData),
+        }
+      );
+
+      return res.ok; // ⭐ return success status
+    } catch (err) {
+      console.error(err);
+      showToast("Network error", "error");
+      return false;
+    }
   };
 
   const handleLogout = async () => {
@@ -786,6 +818,7 @@ const DashboardPage = () => {
               {filteredBookings.map((booking) => (
                 <div key={booking.id} className="glass-card p-6 glow-hover">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                    {/* LEFT SIDE */}
                     <div className="flex-1 mb-4 md:mb-0">
                       <div className="flex items-start justify-between mb-3">
                         <div>
@@ -795,16 +828,8 @@ const DashboardPage = () => {
                           >
                             {booking.providerName}
                           </h3>
-                          {/* <p
-                            className="text-text-secondary text-sm"
-                            style={{ fontWeight: 300 }}
-                          >
-                            Booking ID:{" "}
-                            <span className="font-mono text-accent-green">
-                              #{booking.id}
-                            </span>
-                          </p> */}
                         </div>
+
                         <span
                           className={`px-3 py-1 rounded-lg text-xs ${getStatusColor(
                             booking.status
@@ -816,6 +841,7 @@ const DashboardPage = () => {
                         </span>
                       </div>
 
+                      {/* SERVICE + DATE */}
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <p
@@ -843,7 +869,7 @@ const DashboardPage = () => {
                             );
                             return (
                               <p style={{ fontWeight: 300 }}>
-                                {date} {time ? ` at ${time}` : ""}
+                                {date} {time ? `at ${time}` : ""}
                               </p>
                             );
                           })()}
@@ -851,7 +877,9 @@ const DashboardPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-3">
+                    {/* RIGHT SIDE BUTTONS */}
+                    <div className="flex items-center space-x-3 flex-wrap gap-2">
+                      {/* UPCOMING — Cancel Button */}
                       {booking.status === "upcoming" && (
                         <button
                           onClick={() => handleCancelBooking(booking.id)}
@@ -861,6 +889,51 @@ const DashboardPage = () => {
                         </button>
                       )}
 
+                      {/* COMPLETED — Give Feedback */}
+                      {booking.status === "completed" &&
+                        !booking.feedbackGiven && (
+                          <button
+                            onClick={() => handleOpenFeedback(booking)}
+                            className="btn-gradient py-2 px-4 text-sm inline-flex items-center"
+                          >
+                            <svg
+                              className="w-4 h-4 mr-1"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                              />
+                            </svg>
+                            Give Feedback
+                          </button>
+                        )}
+
+                      {/* FEEDBACK GIVEN BADGE */}
+                      {booking.feedbackGiven && (
+                        <span className="text-xs text-accent-green flex items-center">
+                          <svg
+                            className="w-4 h-4 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          Feedback Given
+                        </span>
+                      )}
+
+                      {/* VIEW BUTTON (original) */}
                       <button
                         className="btn-gradient py-2 px-4 text-sm"
                         onClick={() => {
@@ -949,6 +1022,39 @@ const DashboardPage = () => {
           })()}
         </div>
       )}
+      {showFeedbackModal && selectedBookingForFeedback && (
+  <FeedbackModal
+    booking={selectedBookingForFeedback}
+    onSubmit={async (feedbackData) => {
+      const ok = await handleSubmitFeedback(feedbackData);
+
+      if (ok) {
+        // ⭐ Show success toast (auto disappears in 5 sec)
+        showToast("Thank you for your feedback!", "success");
+
+        // ⭐ Mark as feedback given
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.id === selectedBookingForFeedback.id
+              ? { ...b, feedbackGiven: true }
+              : b
+          )
+        );
+
+        // ⭐ Close modal
+        setShowFeedbackModal(false);
+        setSelectedBookingForFeedback(null);
+      } else {
+        showToast("Failed to submit feedback", "error");
+      }
+    }}
+    onClose={() => {
+      setShowFeedbackModal(false);
+      setSelectedBookingForFeedback(null);
+    }}
+  />
+)}
+
     </div>
   );
 };
