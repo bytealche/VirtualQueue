@@ -7,6 +7,8 @@ const ProviderDashboard = () => {
   const navigate = useNavigate();
   const { user, loading, logout } = useApp();
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const [queuePaused, setQueuePaused] = useState(false);
   const [profile, setProfile] = useState(null);
   const [services, setServices] = useState([]);
@@ -336,7 +338,7 @@ const ProviderDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <Link
-              to="/"
+              to="/provider-dashboard"
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
               <img
@@ -346,15 +348,36 @@ const ProviderDashboard = () => {
               />
             </Link>
 
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
-              <a
-                href="/dashboard"
-                className="text-text-secondary"
+              <Link
+                to="/provider-dashboard"
+                className="text-accent-green"
                 style={{ fontWeight: 300 }}
               >
                 Dashboard
-              </a>
-              {/* <a href="/queue-booking" className="text-text-secondary hover:text-accent-green transition-colors" style={{ fontWeight: 300 }}>Book Queue</a> */}
+              </Link>
+              <Link
+                to="/provider/services"
+                className="text-text-secondary hover:text-accent-green transition-colors"
+                style={{ fontWeight: 300 }}
+              >
+                Services
+              </Link>
+              <Link
+                to="/provider/analytics"
+                className="text-text-secondary hover:text-accent-green transition-colors"
+                style={{ fontWeight: 300 }}
+              >
+                Analytics
+              </Link>
+              <Link
+                to="/provider/feedback"
+                className="text-text-secondary hover:text-accent-green transition-colors"
+                style={{ fontWeight: 300 }}
+              >
+                Feedback
+              </Link>
               <div className="flex items-center space-x-4 border-l border-gray-800 pl-6 ml-6">
                 <button
                   onClick={handleLogout}
@@ -365,22 +388,103 @@ const ProviderDashboard = () => {
               </div>
             </div>
 
-            <button className="md:hidden text-text-primary">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+            <button
+              className="md:hidden text-text-primary"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {!menuOpen ? (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              )}
             </button>
           </div>
+          {/* Mobile Drawer */}
+          {menuOpen && (
+            <div
+              className={`
+      fixed top-20 right-0 h-[calc(100vh-5rem)] w-64 bg-[#0f0f0f]/95 backdrop-blur-xl
+      z-50 transform transition-transform duration-300 ease-in-out md:hidden
+      ${menuOpen ? "translate-x-0" : "translate-x-full"}
+    `}
+            >
+              {/* Navigation */}
+              <nav className="flex-1 overflow-y-auto p-6 mt-12">
+                <div className="space-y-4">
+                  <Link
+                    to="/provider-dashboard"
+                    className="block py-3 px-4 rounded-lg hover:bg-white/10 transition font-light"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+
+                  <Link
+                    to="/provider/services"
+                    className="block py-3 px-4 rounded-lg hover:bg-white/10 transition font-light"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Services
+                  </Link>
+
+                  <Link
+                    to="/provider/analytics"
+                    className="block py-3 px-4 rounded-lg hover:bg-white/10 transition font-light"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Analytics
+                  </Link>
+
+                  <Link
+                    to="/provider/feedback"
+                    className="block py-3 px-4 rounded-lg hover:bg-white/10 transition font-light"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Feedback
+                  </Link>
+                </div>
+              </nav>
+
+              {/* Footer Button */}
+              <div className="p-6 border-t border-white/10">
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="block w-full btn-outline-white py-3 text-center"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 

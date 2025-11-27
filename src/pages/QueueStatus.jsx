@@ -136,7 +136,7 @@ const QueueStatus = () => {
                   Your Token
                 </p>
                 <p
-                  className="font-mono text-4xl text-accent-green mb-2"
+                  className="font-mono text-2xl text-accent-green mb-2"
                   style={{ fontWeight: 200 }}
                 >
                   {queue.tokenId}

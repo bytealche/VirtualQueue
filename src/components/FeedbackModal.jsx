@@ -1,31 +1,63 @@
 import { useState } from 'react';
 
-const FeedbackModal = ({ booking, onSubmit, onClose }) => {
+const FeedbackModal = ({ booking, onClose, onSuccess }) => {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (rating === 0) {
-      alert('Please select a rating');
+      alert("Please select a rating");
       return;
     }
 
     setLoading(true);
-    await onSubmit({ rating, comment });
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`${API_URL}/bookings/${booking.id}/feedback`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          rating,
+          comment
+        })
+      });
+
+      if (res.ok) {
+        onSuccess?.();   // optional callback for DashboardPage
+        onClose();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(err.message || "Failed to submit feedback");
+      }
+    } catch (error) {
+      console.error("Feedback error:", error);
+      alert("Network error");
+    }
+
     setLoading(false);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70 backdrop-blur-sm">
       <div className="glass-card max-w-lg w-full p-8 glow">
+        
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
             <h2 className="text-3xl font-bold mb-2">Rate Your Experience</h2>
-            <p className="text-text-secondary">How was your service at {booking.providerName}?</p>
+            <p className="text-text-secondary">
+              How was your service at {booking.providerName}?
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -37,8 +69,10 @@ const FeedbackModal = ({ booking, onSubmit, onClose }) => {
           </button>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Star Rating */}
+
+          {/* Rating */}
           <div>
             <label className="block text-sm font-medium mb-3">Rating *</label>
             <div className="flex justify-center space-x-2">
@@ -54,8 +88,8 @@ const FeedbackModal = ({ booking, onSubmit, onClose }) => {
                   <svg
                     className={`w-12 h-12 ${
                       star <= (hoveredRating || rating)
-                        ? 'text-yellow-400 fill-current'
-                        : 'text-gray-600'
+                        ? "text-yellow-400 fill-current"
+                        : "text-gray-600"
                     }`}
                     viewBox="0 0 20 20"
                   >
@@ -64,13 +98,14 @@ const FeedbackModal = ({ booking, onSubmit, onClose }) => {
                 </button>
               ))}
             </div>
+
             {rating > 0 && (
               <p className="text-center mt-2 text-accent-green font-semibold">
-                {rating === 1 && '😞 Poor'}
-                {rating === 2 && '😕 Fair'}
-                {rating === 3 && '😐 Good'}
-                {rating === 4 && '😊 Very Good'}
-                {rating === 5 && '🤩 Excellent'}
+                {rating === 1 && "😞 Poor"}
+                {rating === 2 && "😕 Fair"}
+                {rating === 3 && "😐 Good"}
+                {rating === 4 && "😊 Very Good"}
+                {rating === 5 && "🤩 Excellent"}
               </p>
             )}
           </div>
@@ -97,15 +132,9 @@ const FeedbackModal = ({ booking, onSubmit, onClose }) => {
               disabled={loading || rating === 0}
               className="flex-1 btn-gradient py-3 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <span className="spinner-small mr-2"></span>
-                  Submitting...
-                </span>
-              ) : (
-                'Submit Feedback'
-              )}
+              {loading ? "Submitting..." : "Submit Feedback"}
             </button>
+
             <button
               type="button"
               onClick={onClose}
@@ -114,6 +143,7 @@ const FeedbackModal = ({ booking, onSubmit, onClose }) => {
               Cancel
             </button>
           </div>
+
         </form>
       </div>
     </div>
